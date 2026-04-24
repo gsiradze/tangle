@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { tierForLevel } from '../../game/domain/tiers';
-import { Bobr } from '../components/Bobr';
+import { BobrCameo } from '../components/BobrCameo';
 import { IconButton } from '../components/Header';
 import { MonoLabel } from '../components/MonoLabel';
 import { StreakBadge } from '../components/StreakBadge';
@@ -53,7 +53,7 @@ export function MainMenu({
           style={{ top: '58%', height: 1 }}
         />
         <div style={HOP_STYLE}>
-          <Bobr pose="hero" size={220} />
+          <BobrCameo pose="hero" size={220} cheering={false} />
         </div>
 
         <div

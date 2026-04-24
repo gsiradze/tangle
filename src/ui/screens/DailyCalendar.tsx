@@ -1,7 +1,7 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { dateFromKey, keyFromDate, todayKey } from '../../game/domain/daily';
 import type { DailyStreak, SavedGameState, StoredDailyProgress } from '../../storage/gameState';
-import { Bobr } from '../components/Bobr';
+import { BobrCameo } from '../components/BobrCameo';
 import { IconButton } from '../components/Header';
 import { MonoLabel } from '../components/MonoLabel';
 import { StarRow } from '../components/StarRow';
@@ -267,12 +267,8 @@ export function DailyCalendar({ state, onBack, onPlayDay }: DailyCalendarProps) 
         className="flex-1 relative px-4 pt-2 pb-4 flex items-end"
         style={{ minHeight: 120 }}
       >
-        <div
-          aria-hidden="true"
-          className="absolute pointer-events-none"
-          style={{ right: 18, bottom: 68 }}
-        >
-          <Bobr pose="peek" size={72} lookAt={{ x: -0.4, y: 0.3 }} />
+        <div className="absolute" style={{ right: 18, bottom: 68 }}>
+          <BobrCameo pose="peek" size={72} cheering={false} lookAt={{ x: -0.4, y: 0.3 }} />
         </div>
         <button
           type="button"

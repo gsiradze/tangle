@@ -1,5 +1,5 @@
 import { TIERS } from '../../game/domain/tiers';
-import { Bobr } from '../components/Bobr';
+import { BobrCameo } from '../components/BobrCameo';
 import { MonoLabel } from '../components/MonoLabel';
 
 interface TierAdvanceProps {
@@ -152,7 +152,7 @@ export function TierAdvance({ fromStop, toStop, onContinue, onSkip }: TierAdvanc
           >
             <foreignObject x="0" y="0" width="64" height="70">
               <div>
-                <Bobr pose="cheer" size={64} cheering />
+                <BobrCameo pose="cheer" size={64} cheering />
               </div>
             </foreignObject>
           </g>
