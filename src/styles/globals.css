@@ -1,0 +1,295 @@
+@import '@fontsource-variable/fraunces';
+@import '@fontsource/geist/400.css';
+@import '@fontsource/geist/500.css';
+@import '@fontsource/geist/600.css';
+@import '@fontsource/geist/700.css';
+@import '@fontsource/geist-mono/400.css';
+@import '@fontsource/geist-mono/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --paper-50: #fdfbf6;
+    --paper-100: #faf6f0;
+    --paper-200: #f2ece0;
+    --paper-300: #e7dfcf;
+    --paper-400: #d4c9b3;
+
+    --rule-200: #e2d8c3;
+    --rule-300: #c9bda3;
+
+    --ink-900: #2a2722;
+    --ink-700: #4a453c;
+    --ink-500: #726b5e;
+    --ink-400: #8e8675;
+    --ink-300: #a79f8b;
+
+    --fill-900: #1f2a3a;
+    --fill-800: #263348;
+    --fill-700: #334158;
+
+    --sage-700: #4e6b4a;
+    --sage-600: #5e7f59;
+    --sage-500: #7b9875;
+    --sage-300: #b7cab0;
+    --sage-100: #e3eade;
+
+    --clay-700: #8e3a20;
+    --clay-600: #a84a2a;
+    --clay-500: #c46a47;
+    --clay-300: #e3ae94;
+    --clay-100: #f3dccf;
+
+    --ochre-700: #8b6b1e;
+    --ochre-600: #a9842b;
+    --ochre-500: #c39a3e;
+    --ochre-300: #e3c783;
+    --ochre-100: #f3e5be;
+
+    --sh-1: 0 1px 0 rgba(42, 39, 34, 0.04), 0 1px 2px rgba(42, 39, 34, 0.06);
+    --sh-2: 0 1px 0 rgba(42, 39, 34, 0.04), 0 2px 6px rgba(42, 39, 34, 0.08),
+      0 6px 12px rgba(42, 39, 34, 0.04);
+    --sh-3: 0 2px 0 rgba(42, 39, 34, 0.04), 0 6px 18px rgba(42, 39, 34, 0.12),
+      0 18px 36px rgba(42, 39, 34, 0.08);
+    --sh-ink: inset 0 -2px 0 rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    --ease-pop: cubic-bezier(0.2, 0.9, 0.3, 1.15);
+    --ease-flip: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --dur-nudge: 120ms;
+    --dur-flip: 280ms;
+    --dur-lift: 340ms;
+    --dur-fade: 450ms;
+
+    --bobr-body: #e3c783;
+    --bobr-depth: #c39a3e;
+    --bobr-cheek: #c46a47;
+    --bobr-outline: #2a2722;
+    --bobr-belly: #f3e5be;
+    --bobr-tail: #8b6b1e;
+  }
+
+  html.dark {
+    --paper-50: #2a231e;
+    --paper-100: #1c1815;
+    --paper-200: #221d19;
+    --paper-300: #312821;
+    --paper-400: #3a3028;
+
+    --rule-200: #3a3028;
+    --rule-300: #4a3f33;
+
+    --ink-900: #faf6f0;
+    --ink-700: #e7dfcf;
+    --ink-500: #a79f8b;
+    --ink-400: #8e8675;
+    --ink-300: #726b5e;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    color: var(--ink-900);
+    background-color: var(--paper-100);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.5;
+    overscroll-behavior: none;
+  }
+
+  #game-container,
+  #game-container canvas {
+    touch-action: none;
+    -ms-touch-action: none;
+  }
+
+  #root {
+    min-height: 100vh;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    background-color: var(--paper-100);
+  }
+
+  @media (min-width: 520px) {
+    body {
+      background-color: var(--paper-200);
+    }
+    #root {
+      box-shadow: 0 0 0 1px var(--rule-200);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .paper-dots {
+    background-color: var(--paper-100);
+    background-image:
+      radial-gradient(circle at 1.5px 1.5px, rgba(42, 39, 34, 0.035) 1px, transparent 1.5px),
+      radial-gradient(circle at 3.5px 3.5px, rgba(42, 39, 34, 0.028) 1.5px, transparent 2px);
+    background-size:
+      14px 14px,
+      26px 26px;
+    background-position:
+      0 0,
+      7px 13px;
+  }
+
+  .pt-safe {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  .pl-safe {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+  }
+  .pr-safe {
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+  .px-safe {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+  .py-safe {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes bvrBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.2px);
+  }
+}
+@keyframes bvrBlink {
+  0%,
+  45%,
+  49%,
+  95%,
+  100% {
+    transform: scaleY(1);
+  }
+  47%,
+  97% {
+    transform: scaleY(0.05);
+  }
+}
+@keyframes bvrSettle {
+  0% {
+    transform: scale(1, 1);
+  }
+  30% {
+    transform: scale(1.06, 0.94);
+  }
+  60% {
+    transform: scale(0.97, 1.03);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+@keyframes bvrSlap {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes bvrExcl {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(var(--tx, -22px), -34px) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx, -22px), -50px) scale(1);
+  }
+}
+@keyframes homePlayPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+@keyframes homeBeaverHop {
+  0% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes scarfWiggle {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes starPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-20deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.18) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}

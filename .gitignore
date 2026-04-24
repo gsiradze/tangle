@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build & deps
+node_modules
+dist
+dist-ssr
+coverage
+*.local
+
+# Native projects (generated per-game via `npx cap add`)
+ios
+android
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
+
+# TS incremental
+*.tsbuildinfo
+
+# Playwright
+test-results
+playwright-report
