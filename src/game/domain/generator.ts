@@ -30,7 +30,7 @@ const CIRCLE_RADIUS = 0.4;
 const CIRCLE_CENTER: Vec2 = { x: 0.5, y: 0.5 };
 const MAX_TANGLE_RETRIES = 100;
 
-function scatterPoints(n: number, rng: Rng): Vec2[] {
+export function scatterPoints(n: number, rng: Rng): Vec2[] {
   const points: Vec2[] = [];
   const minDistSq = MIN_DIST * MIN_DIST;
   const maxAttempts = n * 200;
@@ -61,7 +61,7 @@ function scatterPoints(n: number, rng: Rng): Vec2[] {
   return points;
 }
 
-function delaunayEdges(points: readonly Vec2[]): Edge[] {
+export function delaunayEdges(points: readonly Vec2[]): Edge[] {
   const delaunay = Delaunay.from(points.map((p): [number, number] => [p.x, p.y]));
   const triangles = delaunay.triangles;
   const seen = new Set<string>();

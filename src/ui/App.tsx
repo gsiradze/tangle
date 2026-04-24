@@ -1,13 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
+import { todayKey } from '../game/domain/daily';
 import { tierForLevel } from '../game/domain/tiers';
 import { useGameState } from './hooks/useGameState';
-import { MainMenu } from './screens/MainMenu';
+import { DailyCalendar } from './screens/DailyCalendar';
+import { DailyPlay } from './screens/DailyPlay';
 import { LevelSelect } from './screens/LevelSelect';
+import { MainMenu } from './screens/MainMenu';
 import { PlayScreen } from './screens/PlayScreen';
 import { Settings } from './screens/Settings';
 import { TierAdvance } from './screens/TierAdvance';
 
-type Screen = 'menu' | 'play' | 'levels' | 'settings';
+type Screen =
+  | { kind: 'menu' }
+  | { kind: 'play' }
+  | { kind: 'levels' }
+  | { kind: 'settings' }
+  | { kind: 'daily-calendar' }
+  | { kind: 'daily-play'; dayKey: string };
 
 interface PendingAdvance {
   readonly fromStop: number;
@@ -16,7 +25,7 @@ interface PendingAdvance {
 
 export default function App() {
   const { state, actions } = useGameState();
-  const [screen, setScreen] = useState<Screen>('menu');
+  const [screen, setScreen] = useState<Screen>({ kind: 'menu' });
   const [darkMode, setDarkMode] = useState(false);
   const [pendingAdvance, setPendingAdvance] = useState<PendingAdvance | null>(null);
 
@@ -29,12 +38,19 @@ export default function App() {
   const handleResetProgress = useCallback(() => {
     actions.reset();
     setPendingAdvance(null);
-    setScreen('menu');
+    setScreen({ kind: 'menu' });
   }, [actions]);
 
   const handleSolve = useCallback(
     (levelId: number, moves: number, optimalMoves: number) => {
       actions.recordSolve(levelId, moves, optimalMoves);
+    },
+    [actions],
+  );
+
+  const handleDailySolve = useCallback(
+    (dayKey: string, moves: number) => {
+      actions.recordDailySolve(dayKey, moves);
     },
     [actions],
   );
@@ -58,48 +74,73 @@ export default function App() {
         toStop={pendingAdvance.toStop}
         onContinue={() => {
           setPendingAdvance(null);
-          setScreen('play');
+          setScreen({ kind: 'play' });
         }}
         onSkip={() => {
           setPendingAdvance(null);
-          setScreen('play');
+          setScreen({ kind: 'play' });
         }}
       />
     );
   }
 
-  if (screen === 'menu') {
+  if (screen.kind === 'menu') {
+    const today = todayKey();
+    const todayUnplayed = state.daily[today] === undefined;
     return (
       <MainMenu
         currentLevel={state.currentLevel}
-        streakDays={state.sessionCount}
-        onPlay={() => setScreen('play')}
-        onLevels={() => setScreen('levels')}
-        onSettings={() => setScreen('settings')}
+        streakDays={state.streak.current}
+        todayUnplayed={todayUnplayed}
+        onPlay={() => setScreen({ kind: 'play' })}
+        onDaily={() => setScreen({ kind: 'daily-calendar' })}
+        onLevels={() => setScreen({ kind: 'levels' })}
+        onSettings={() => setScreen({ kind: 'settings' })}
       />
     );
   }
 
-  if (screen === 'levels') {
+  if (screen.kind === 'levels') {
     return (
       <LevelSelect
         state={state}
-        onBack={() => setScreen('menu')}
+        onBack={() => setScreen({ kind: 'menu' })}
         onPick={(id) => {
           actions.setCurrentLevel(id);
-          setScreen('play');
+          setScreen({ kind: 'play' });
         }}
       />
     );
   }
 
-  if (screen === 'settings') {
+  if (screen.kind === 'settings') {
     return (
       <Settings
         darkMode={darkMode}
         onToggleDark={setDarkMode}
-        onBack={() => setScreen('menu')}
+        onBack={() => setScreen({ kind: 'menu' })}
         onResetProgress={handleResetProgress}
+      />
+    );
+  }
+
+  if (screen.kind === 'daily-calendar') {
+    return (
+      <DailyCalendar
+        state={state}
+        onBack={() => setScreen({ kind: 'menu' })}
+        onPlayDay={(dayKey) => setScreen({ kind: 'daily-play', dayKey })}
+      />
+    );
+  }
+
+  if (screen.kind === 'daily-play') {
+    return (
+      <DailyPlay
+        dayKey={screen.dayKey}
+        state={state}
+        onBack={() => setScreen({ kind: 'daily-calendar' })}
+        onDailySolved={handleDailySolve}
       />
     );
   }
@@ -108,8 +149,8 @@ export default function App() {
     <PlayScreen
       levelId={state.currentLevel}
       state={state}
-      onBack={() => setScreen('menu')}
-      onLevelSelect={() => setScreen('levels')}
+      onBack={() => setScreen({ kind: 'menu' })}
+      onLevelSelect={() => setScreen({ kind: 'levels' })}
       onSolved={handleSolve}
       onCurrentLevel={handleCurrentLevel}
       onOnboardingComplete={actions.completeOnboarding}

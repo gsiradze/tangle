@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   applyCurrentLevel,
+  applyDailySolve,
   applyIncrementSession,
   applyOnboardingComplete,
   applyResolve,
+  applyStreakCheck,
   initialGameState,
   isLevelUnlocked,
   loadGameState,
@@ -115,6 +117,69 @@ describe('isLevelUnlocked', () => {
   it('rejects out-of-range ids', () => {
     expect(isLevelUnlocked(initialGameState, 0, 100)).toBe(false);
     expect(isLevelUnlocked(initialGameState, 101, 100)).toBe(false);
+  });
+});
+
+describe('applyDailySolve', () => {
+  it('records a daily and starts a streak when solved on the day', () => {
+    const next = applyDailySolve(initialGameState, '2026-04-24', '2026-04-24', 1);
+    expect(next.daily['2026-04-24']).toMatchObject({ stars: 3, bestMoves: 1, countedForStreak: true });
+    expect(next.streak).toMatchObject({ current: 1, best: 1, lastCompletedDate: '2026-04-24' });
+  });
+
+  it('extends the streak when yesterday is the last completed date', () => {
+    const day1 = applyDailySolve(initialGameState, '2026-04-23', '2026-04-23', 1);
+    const day2 = applyDailySolve(day1, '2026-04-24', '2026-04-24', 2);
+    expect(day2.streak.current).toBe(2);
+    expect(day2.streak.best).toBe(2);
+  });
+
+  it('resets the streak when there is a gap', () => {
+    const day1 = applyDailySolve(initialGameState, '2026-04-20', '2026-04-20', 1);
+    const day2 = applyDailySolve(day1, '2026-04-24', '2026-04-24', 1);
+    expect(day2.streak.current).toBe(1);
+    expect(day2.streak.best).toBe(1);
+  });
+
+  it('does not count a catch-up solve toward the streak', () => {
+    const state = applyDailySolve(initialGameState, '2026-04-20', '2026-04-24', 1);
+    expect(state.streak.current).toBe(0);
+    expect(state.daily['2026-04-20']).toMatchObject({ countedForStreak: false, stars: 3 });
+  });
+
+  it('upgrades stars and best moves on a better re-attempt', () => {
+    const first = applyDailySolve(initialGameState, '2026-04-24', '2026-04-24', 4);
+    const second = applyDailySolve(first, '2026-04-24', '2026-04-24', 1);
+    expect(second.daily['2026-04-24']).toMatchObject({ stars: 3, bestMoves: 1 });
+    expect(second.streak.current).toBe(1);
+  });
+
+  it('does not double-bump the streak on a same-day replay', () => {
+    const first = applyDailySolve(initialGameState, '2026-04-24', '2026-04-24', 2);
+    const second = applyDailySolve(first, '2026-04-24', '2026-04-24', 1);
+    expect(first.streak.current).toBe(1);
+    expect(second.streak.current).toBe(1);
+  });
+});
+
+describe('applyStreakCheck', () => {
+  it('zeroes the streak if last completed date is older than yesterday', () => {
+    const withStreak = applyDailySolve(initialGameState, '2026-04-20', '2026-04-20', 1);
+    const checked = applyStreakCheck(withStreak, '2026-04-24');
+    expect(checked.streak.current).toBe(0);
+    expect(checked.streak.best).toBe(1);
+  });
+
+  it('keeps the streak when checking on the same day', () => {
+    const withStreak = applyDailySolve(initialGameState, '2026-04-24', '2026-04-24', 1);
+    const checked = applyStreakCheck(withStreak, '2026-04-24');
+    expect(checked.streak.current).toBe(1);
+  });
+
+  it('keeps the streak when today is the day after the last completed', () => {
+    const withStreak = applyDailySolve(initialGameState, '2026-04-23', '2026-04-23', 1);
+    const checked = applyStreakCheck(withStreak, '2026-04-24');
+    expect(checked.streak.current).toBe(1);
   });
 });
 

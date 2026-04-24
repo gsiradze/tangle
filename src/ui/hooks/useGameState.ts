@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { todayKey } from '../../game/domain/daily';
 import {
   applyCurrentLevel,
+  applyDailySolve,
   applyIncrementSession,
   applyOnboardingComplete,
   applyResolve,
+  applyStreakCheck,
   initialGameState,
   loadGameState,
   resetGameState,
@@ -14,6 +17,7 @@ import {
 
 export interface GameStateActions {
   recordSolve(levelId: number, moves: number, optimalMoves: number): void;
+  recordDailySolve(dayKey: string, moves: number): void;
   setCurrentLevel(levelId: number): void;
   completeOnboarding(): void;
   reset(): void;
@@ -35,6 +39,7 @@ export function useGameState(): GameStateHook {
     hydrated.current = true;
     let next = loadGameState();
     if (shouldAdvanceSession()) next = applyIncrementSession(next);
+    next = applyStreakCheck(next, todayKey());
     saveGameState(next);
     setState(next);
   }, []);
@@ -50,6 +55,13 @@ export function useGameState(): GameStateHook {
   const recordSolve = useCallback(
     (levelId: number, moves: number, optimalMoves: number) => {
       update((s) => applyResolve(s, levelId, moves, optimalMoves));
+    },
+    [update],
+  );
+
+  const recordDailySolve = useCallback(
+    (dayKey: string, moves: number) => {
+      update((s) => applyDailySolve(s, dayKey, todayKey(), moves));
     },
     [update],
   );
@@ -71,6 +83,12 @@ export function useGameState(): GameStateHook {
 
   return {
     state,
-    actions: { recordSolve, setCurrentLevel, completeOnboarding, reset },
+    actions: {
+      recordSolve,
+      recordDailySolve,
+      setCurrentLevel,
+      completeOnboarding,
+      reset,
+    },
   };
 }

@@ -9,7 +9,9 @@ import { Wordmark } from '../components/Wordmark';
 interface MainMenuProps {
   readonly currentLevel: number;
   readonly streakDays: number;
+  readonly todayUnplayed: boolean;
   readonly onPlay: () => void;
+  readonly onDaily: () => void;
   readonly onLevels: () => void;
   readonly onSettings: () => void;
 }
@@ -20,7 +22,9 @@ const PULSE_STYLE: CSSProperties = { animation: 'homePlayPulse 2.6s ease-in-out 
 export function MainMenu({
   currentLevel,
   streakDays,
+  todayUnplayed,
   onPlay,
+  onDaily,
   onLevels,
   onSettings,
 }: MainMenuProps) {
@@ -93,6 +97,29 @@ export function MainMenu({
         </button>
 
         <div className="flex gap-2.5 mt-2.5">
+          <button
+            type="button"
+            onClick={onDaily}
+            className="relative flex-1 bg-paper-50 text-ink-900 font-sans font-semibold shadow-sh-1 active:scale-[0.98] transition-transform"
+            style={{ height: 48, borderRadius: 14, border: '1.5px solid var(--rule-300)', fontSize: 15 }}
+            aria-label={todayUnplayed ? "Daily — today's puzzle waiting" : 'Daily'}
+          >
+            Daily
+            {todayUnplayed ? (
+              <span
+                aria-hidden="true"
+                className="absolute rounded-full"
+                style={{
+                  top: 9,
+                  right: 12,
+                  width: 8,
+                  height: 8,
+                  background: 'var(--clay-500)',
+                  boxShadow: '0 0 0 2px var(--paper-50)',
+                }}
+              />
+            ) : null}
+          </button>
           <button
             type="button"
             onClick={onLevels}

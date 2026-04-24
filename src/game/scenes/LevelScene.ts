@@ -74,6 +74,7 @@ export class LevelScene extends Scene {
 
     EventBus.on('request:reset-level', this.handleReset, this);
     EventBus.on('request:load-level', this.handleLoadLevel, this);
+    EventBus.on('request:load-level-object', this.handleLoadLevelObject, this);
     EventBus.on('request:apply-hint', this.handleApplyHint, this);
 
     this.events.once(Scenes.Events.SHUTDOWN, this.onShutdown, this);
@@ -89,6 +90,7 @@ export class LevelScene extends Scene {
     this.input.off('pointerupoutside', this.onPointerUp, this);
     EventBus.off('request:reset-level', this.handleReset, this);
     EventBus.off('request:load-level', this.handleLoadLevel, this);
+    EventBus.off('request:load-level-object', this.handleLoadLevelObject, this);
     EventBus.off('request:apply-hint', this.handleApplyHint, this);
     this.winTween?.remove();
     this.pulseTween?.remove();
@@ -96,17 +98,18 @@ export class LevelScene extends Scene {
     this.pulseTween = null;
   }
 
-  private handleReset(): void {
+  private applyLevel(level: Level): void {
     this.winTween?.remove();
     this.pulseTween?.remove();
     this.winTween = null;
     this.pulseTween = null;
+    this.level = level;
     this.moveCount = 0;
     this.solved = false;
     this.winProgress = 0;
     this.pulseScale = 1;
     this.draggingId = null;
-    this.vertices = this.level.initial.map((p, id) => ({
+    this.vertices = level.initial.map((p, id) => ({
       id,
       x: this.playArea.x + p.x * this.playArea.w,
       y: this.playArea.y + p.y * this.playArea.h,
@@ -114,11 +117,22 @@ export class LevelScene extends Scene {
     this.redraw();
   }
 
+  private handleReset(): void {
+    this.applyLevel(this.level);
+  }
+
   private handleLoadLevel(levelId: number): void {
     const next = getLevel(levelId);
     if (!next) return;
     this.registry.set('currentLevel', levelId);
-    this.scene.restart({ level: next });
+    this.applyLevel(next);
+    EventBus.emit('level:start', next.id);
+  }
+
+  private handleLoadLevelObject(level: Level): void {
+    this.registry.set('currentLevelObject', level);
+    this.applyLevel(level);
+    EventBus.emit('level:start', level.id);
   }
 
   private worldFromNormalized = (p: Vec2): Vec2 => ({

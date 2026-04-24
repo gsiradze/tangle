@@ -1,3 +1,5 @@
+import type { Level } from './domain/types';
+
 export interface EventMap {
   readonly 'scene-ready': [sceneKey: string];
   readonly 'level:start': [levelId: number];
@@ -6,6 +8,7 @@ export interface EventMap {
   readonly 'level:modal-ready': [levelId: number, moves: number];
   readonly 'request:reset-level': [];
   readonly 'request:load-level': [levelId: number];
+  readonly 'request:load-level-object': [level: Level];
   readonly 'request:apply-hint': [];
   readonly 'hint:applied': [vertexId: number | null];
 }

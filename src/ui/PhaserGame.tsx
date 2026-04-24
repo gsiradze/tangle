@@ -2,28 +2,34 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Game } from 'phaser';
 import { startGame } from '../game/main';
 import { EventBus } from '../game/EventBus';
+import type { Level } from '../game/domain/types';
 
 if (import.meta.env.DEV) {
   (globalThis as unknown as { __tangleBus?: typeof EventBus }).__tangleBus = EventBus;
 }
 
 interface PhaserGameProps {
-  readonly levelId: number;
+  readonly levelId?: number;
+  readonly levelObject?: Level;
   readonly onReady?: (sceneKey: string) => void;
   readonly inputDisabled?: boolean;
 }
 
-export function PhaserGame({ levelId, onReady, inputDisabled }: PhaserGameProps) {
+export function PhaserGame({ levelId, levelObject, onReady, inputDisabled }: PhaserGameProps) {
   const gameRef = useRef<Game | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
-  const lastLevelRef = useRef<number>(levelId);
+  const lastLevelIdRef = useRef<number | undefined>(levelId);
+  const lastLevelObjectRef = useRef<Level | undefined>(levelObject);
 
   useLayoutEffect(() => {
     if (gameRef.current !== null) return;
     if (!containerRef.current) return;
     containerRef.current.id = 'game-container';
-    gameRef.current = startGame('game-container', lastLevelRef.current);
+    gameRef.current = startGame('game-container', {
+      levelId: lastLevelIdRef.current,
+      levelObject: lastLevelObjectRef.current,
+    });
     return () => {
       gameRef.current?.destroy(true);
       gameRef.current = null;
@@ -43,11 +49,22 @@ export function PhaserGame({ levelId, onReady, inputDisabled }: PhaserGameProps)
   }, [onReady]);
 
   useEffect(() => {
-    if (lastLevelRef.current === levelId) return;
-    lastLevelRef.current = levelId;
+    if (levelObject !== undefined) {
+      if (lastLevelObjectRef.current === levelObject) return;
+      lastLevelObjectRef.current = levelObject;
+      lastLevelIdRef.current = undefined;
+      gameRef.current?.registry.set('currentLevelObject', levelObject);
+      if (sceneReady) EventBus.emit('request:load-level-object', levelObject);
+      return;
+    }
+    if (levelId === undefined) return;
+    if (lastLevelIdRef.current === levelId) return;
+    lastLevelIdRef.current = levelId;
+    lastLevelObjectRef.current = undefined;
     gameRef.current?.registry.set('currentLevel', levelId);
+    gameRef.current?.registry.set('currentLevelObject', null);
     if (sceneReady) EventBus.emit('request:load-level', levelId);
-  }, [levelId, sceneReady]);
+  }, [levelId, levelObject, sceneReady]);
 
   useEffect(() => {
     const game = gameRef.current;

@@ -1,5 +1,6 @@
 import { Scene, Scenes } from 'phaser';
 import { getLevel } from '../domain/levels';
+import type { Level } from '../domain/types';
 
 const FONT_READY_TIMEOUT_MS = 1500;
 
@@ -20,9 +21,13 @@ export class BootScene extends Scene {
     const start = (): void => {
       if (cancelled) return;
       if (!this.scene?.isActive('Boot')) return;
-      const registryValue = this.registry.get('currentLevel');
-      const id = typeof registryValue === 'number' ? registryValue : 1;
-      const level = getLevel(id) ?? getLevel(1);
+      const override = this.registry.get('currentLevelObject') as Level | undefined;
+      let level: Level | undefined = override ?? undefined;
+      if (!level) {
+        const registryValue = this.registry.get('currentLevel');
+        const id = typeof registryValue === 'number' ? registryValue : 1;
+        level = getLevel(id) ?? getLevel(1);
+      }
       if (!level) {
         this.add.text(20, 20, 'Level data missing', { color: '#c25c3f' });
         return;
